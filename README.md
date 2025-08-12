@@ -1,74 +1,108 @@
 # MlRadioFm
 
-SwiftUI로 제작된 한국 라디오 전용 Mac 애플리케이션입니다.
+A macOS menu bar radio streaming application built with SwiftUI, featuring Korean and US radio stations.
 
-## 기능
+## Features
 
-- 🇰🇷 한국 주요 라디오 스테이션 재생
-- 🎛️ 볼륨 조절 및 재생 컨트롤
-- 📻 방송사별 그룹화된 스테이션 목록
-- 🎯 현재 재생 중인 스테이션 표시
-- ⏯️ 재생/일시정지/정지 컨트롤
-- 🌓 시스템 테마(라이트/다크 모드) 자동 지원
-- 📱 컴팩트하고 미니멀한 UI 디자인
+- 🎵 **14 Radio Stations**: 11 Korean + 3 US stations
+- 📻 **Menu Bar Interface**: Professional popover design
+- 🎛️ **Volume Control**: Easy audio level adjustment
+- 📊 **Grouped Stations**: Organized by broadcaster
+- 🎯 **Current Station Display**: Shows what's playing
+- ⏯️ **Playback Controls**: Play/pause/stop functionality
+- 🌓 **System Theme Support**: Automatic light/dark mode
+- 📱 **Compact UI**: Minimal 280x480 interface
 
-## 포함된 한국 라디오 스테이션 (11개)
+## Radio Stations
 
-### KBS (4개)
+### Korean Stations (11)
+
+#### KBS (4 stations)
 - KBS 1라디오
-- KBS 2라디오 해피FM
+- KBS 2라디오 해피FM  
 - KBS 3라디오 쿨FM
 - KBS 클래식FM
 
-### MBC (3개)
+#### MBC (3 stations)
 - MBC 표준FM
 - MBC FM4U
 - MBC 올댓뮤직
 
-### SBS (2개)
+#### SBS (2 stations)
 - SBS 러브FM
 - SBS 파워FM
 
-### 기타 (3개)
+#### Other Korean (2 stations)
 - BBS 불교방송
 - YTN 라디오
 - Arirang Radio
 
-## 기술적 특징
+### US Stations (3)
+- **KISS FM 106.1** - Dallas-Fort Worth Hit Music
+- **STAR 102.1** - Dallas-Fort Worth 80s/90s/Today  
+- **The New MiX 102.9** - Dallas-Fort Worth 2000s to Today
 
-- 공식 API를 통한 동적 스트림 URL 로딩
-- HTTPS 스트림만 사용 (ATS 정책 준수)
-- 방송사별 컬러 코딩 UI
-- 시스템 색상 자동 적응
+## Technical Features
 
-## 시스템 요구사항
+- **Official APIs**: Dynamic stream URL loading for Korean stations
+- **HTTPS Streams**: ATS policy compliant with secure connections
+- **iHeart Radio Integration**: Official US station streams
+- **Color-Coded UI**: Broadcaster-specific themes
+- **System Colors**: Automatic adaptation to macOS themes
+- **Error Handling**: Robust network and stream failure recovery
+- **Async Architecture**: Modern Swift concurrency patterns
 
-- macOS 14.0 이상
-- Xcode 15.0 이상
+## System Requirements
 
-## 빌드 및 실행
+- **macOS**: 14.0 or later
+- **Xcode**: 15.0 or later (for development)
+- **Architecture**: Apple Silicon & Intel compatible
 
-1. Xcode에서 `MlRadioFm.xcodeproj` 파일을 엽니다
-2. 프로젝트를 빌드합니다 (⌘+B)
-3. 앱을 실행합니다 (⌘+R)
+## Build & Run
 
-## 사용법
+1. Open `MlRadioFm.xcodeproj` in Xcode
+2. Build the project (⌘+B)
+3. Run the application (⌘+R)
 
-1. 라디오 스테이션 목록에서 원하는 스테이션을 클릭합니다
-2. 재생 버튼을 눌러 라디오를 시작합니다
-3. 볼륨 슬라이더로 음량을 조절합니다
-4. 정지 버튼으로 재생을 중단할 수 있습니다
+## Usage
 
-## 기술 스택
+1. **Access**: Click the radio icon in your menu bar
+2. **Open Interface**: Select "Show Radio" from the menu
+3. **Choose Station**: Click any station from the grouped list
+4. **Control Playback**: Use play/pause and stop buttons
+5. **Adjust Volume**: Use the volume slider
+6. **Help**: Click "MlRadioFm" in the menu for app information
 
-- **SwiftUI**: 사용자 인터페이스
-- **AVFoundation**: 오디오 스트리밍
-- **Combine**: 반응형 프로그래밍
+## Technology Stack
 
-## 향후 개선 사항
+- **SwiftUI**: Modern declarative UI framework
+- **AVFoundation**: Audio streaming and playback
+- **Combine**: Reactive programming and state management
+- **NSStatusItem**: macOS menu bar integration
+- **NSPopover**: Professional popover interface
+- **Async/Await**: Modern asynchronous programming
 
-- [ ] 사용자 정의 스테이션 추가 기능
-- [ ] 즐겨찾기 기능
-- [ ] 메타데이터 표시 (곡 제목, 아티스트)
-- [ ] 키보드 단축키 지원
-- [ ] 다크 모드 지원
+## Future Enhancements
+
+- [ ] Custom station addition
+- [ ] Favorites functionality
+- [ ] Metadata display (song titles, artists)
+- [ ] Keyboard shortcuts
+- [ ] Additional international stations
+- [ ] Recording functionality
+- [ ] Sleep timer
+
+## License
+
+Copyright © 2025 Michaeldslim. All rights reserved.
+
+## Attribution
+
+Radio streams provided by:
+- iHeart Radio (KISS FM, STAR, The New MiX)
+- Korean Broadcasting System (KBS)
+- Munhwa Broadcasting Corporation (MBC)  
+- Seoul Broadcasting System (SBS)
+- Other Korean broadcasters
+
+All content is property of respective broadcasters.
