@@ -5,31 +5,31 @@ struct ContentView: View {
   @State private var hasSelectedStation = false
   
   var body: some View {
-      VStack(spacing: 20) {
-        // Pretty Header with icon
-        VStack(spacing: 12) {
-          HStack(spacing: 8) {
-            Image(systemName: "radio")
-              .font(.title2)
-              .foregroundColor(.accentColor)
-            Text("ML Radio FM")
-              .font(.title2)
-              .fontWeight(.semibold)
-              .foregroundColor(.primary)
-          }
-          
-          if let station = radioPlayer.currentStation {
-            Text(station.name)
-              .font(.subheadline)
-              .foregroundColor(.secondary)
-              .multilineTextAlignment(.center)
-              .lineLimit(2)
-          } else if !hasSelectedStation {
-            Text("스테이션을 선택하세요")
-              .font(.caption)
-              .foregroundColor(.secondary)
-          }
+    VStack(spacing: 20) {
+      // Pretty Header with icon
+      VStack(spacing: 12) {
+        HStack(spacing: 8) {
+          Image(systemName: "radio")
+            .font(.title2)
+            .foregroundColor(.accentColor)
+          Text("ML Radio FM")
+            .font(.title2)
+            .fontWeight(.semibold)
+            .foregroundColor(.primary)
         }
+        
+        if let station = radioPlayer.currentStation {
+          Text(station.name)
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+        } else if !hasSelectedStation {
+          Text("스테이션을 선택하세요")
+            .font(.caption)
+            .foregroundColor(.secondary)
+        }
+      }
       .padding(.top, 16)
     
       // Compact Status
@@ -185,7 +185,6 @@ struct ContentView: View {
         }
         .padding(.horizontal, 16)
       }
-      
       Spacer()
     }
     .frame(width: 280, height: 480)
