@@ -100,6 +100,12 @@ enum RadioError: Error {
   case networkError
 }
 
+struct PodcastEpisode {
+  let title: String
+  let number: String?
+  let audioURL: String
+}
+
 @MainActor
 class RadioPlayer: ObservableObject {
   @Published var isPlaying = false
@@ -107,9 +113,16 @@ class RadioPlayer: ObservableObject {
   @Published var volume: Float = 0.5
   @Published var isLoading = false
   @Published var errorMessage: String?
+  @Published var currentEpisode: PodcastEpisode?
+  
+  // Podcast progress tracking
+  @Published var currentTime: Double = 0.0
+  @Published var duration: Double = 0.0
+  @Published var progress: Double = 0.0
   
   private var player: AVPlayer?
   private var cancellables = Set<AnyCancellable>()
+  private var timeObserver: Any?
   
   let stations = [
     // 한국 라디오 스테이션 (API 기반 동적 로딩)
@@ -135,6 +148,9 @@ class RadioPlayer: ObservableObject {
     RadioStation(name: "STAR 102.1", url: "https://n10a-e2.revma.ihrhls.com/zc2815", type: .international),
     RadioStation(name: "The New MiX 102.9", url: "https://n10a-e2.revma.ihrhls.com/zc2237", type: .international),
     RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean),
+    
+    // Podcasts
+    RadioStation(name: "Syntax.fm", url: "https://feed.syntax.fm/rss", type: .podcast),
   ]
   
   init() {
@@ -165,6 +181,11 @@ class RadioPlayer: ObservableObject {
       Task {
         await self.playKoreanStation(station)
       }
+    } else if station.type == .podcast {
+      // Handle podcast RSS feeds
+      Task {
+        await self.playPodcastStation(station)
+      }
     } else {
       // Handle international radio stations
       Task {
@@ -194,6 +215,105 @@ class RadioPlayer: ObservableObject {
         print("❌ International radio error: \(error)")
       }
     }
+  }
+  
+  private func playPodcastStation(_ station: RadioStation) async {
+    do {
+      print("🎙️ Playing podcast: \(station.name)")
+      
+      // Parse RSS feed to get latest episode
+      guard let rssURL = URL(string: station.url) else {
+        print("❌ Invalid RSS URL: \(station.url)")
+        throw RadioError.invalidURL
+      }
+      
+      print("🎙️ Fetching RSS from: \(station.url)")
+      let (data, _) = try await URLSession.shared.data(from: rssURL)
+      let rssString = String(data: data, encoding: .utf8) ?? ""
+      print("🎙️ RSS feed length: \(rssString.count) characters")
+      
+      // Parse RSS feed to get latest episode with metadata
+      let episode = try await parseLatestEpisode(from: rssString)
+      
+      // Update current episode info
+      DispatchQueue.main.async {
+        self.currentEpisode = episode
+        print("🎙️ Episode set in UI: \(episode.title)")
+        if let number = episode.number {
+          print("🎙️ Episode number: #\(number)")
+        }
+      }
+      
+      print("🎙️ Podcast episode: \(episode.title)")
+      print("🎙️ Episode URL: \(episode.audioURL)")
+      
+      guard let url = URL(string: episode.audioURL) else {
+        throw RadioError.invalidURL
+      }
+      
+      DispatchQueue.main.async {
+        self.playWithURL(url: url, station: station)
+      }
+    } catch {
+      DispatchQueue.main.async {
+        self.errorMessage = "Podcast connection failed: \(station.name)"
+        self.isLoading = false
+        print("❌ Podcast error: \(error)")
+      }
+    }
+  }
+  
+  private func parseLatestEpisode(from rssString: String) async throws -> PodcastEpisode {
+    // Find the first <item> element (latest episode)
+    let itemPattern = "<item[^>]*>([\\s\\S]*?)</item>"
+    
+    guard let itemRegex = try? NSRegularExpression(pattern: itemPattern, options: []),
+          let itemMatch = itemRegex.firstMatch(in: rssString, options: [], range: NSRange(location: 0, length: rssString.count)),
+          let itemRange = Range(itemMatch.range(at: 1), in: rssString) else {
+      throw RadioError.noStreamFound
+    }
+    
+    let itemContent = String(rssString[itemRange])
+    
+    // Extract title
+    let titlePattern = "<title>([^<]+)</title>"
+    let rawTitle = extractMatch(from: itemContent, pattern: titlePattern) ?? "Unknown Episode"
+    
+    // Extract episode number (look for XXX: or #XXX pattern in title)
+    let numberPattern = "^(\\d+):|#(\\d+)"
+    var number: String?
+    var cleanTitle = rawTitle
+    
+    if let regex = try? NSRegularExpression(pattern: numberPattern, options: []),
+       let match = regex.firstMatch(in: rawTitle, options: [], range: NSRange(location: 0, length: rawTitle.count)) {
+      // Check first capture group (XXX:) then second (#XXX)
+      if let range1 = Range(match.range(at: 1), in: rawTitle), !rawTitle[range1].isEmpty {
+        number = String(rawTitle[range1])
+        // Remove "928: " from the beginning of title
+        cleanTitle = rawTitle.replacingOccurrences(of: "^\\d+:\\s*", with: "", options: .regularExpression)
+      } else if let range2 = Range(match.range(at: 2), in: rawTitle), !rawTitle[range2].isEmpty {
+        number = String(rawTitle[range2])
+        // Remove "#928 " from the beginning of title
+        cleanTitle = rawTitle.replacingOccurrences(of: "^#\\d+\\s*", with: "", options: .regularExpression)
+      }
+    }
+    
+    // Extract audio URL from enclosure
+    let enclosurePattern = "<enclosure[^>]*url=\"([^\"]+)\"[^>]*type=\"audio/[^\"]+\"[^>]*/?>"
+    guard let audioURL = extractMatch(from: itemContent, pattern: enclosurePattern) else {
+      throw RadioError.noStreamFound
+    }
+    
+    return PodcastEpisode(title: cleanTitle, number: number, audioURL: audioURL)
+  }
+  
+  private func extractMatch(from text: String, pattern: String) -> String? {
+    guard let regex = try? NSRegularExpression(pattern: pattern, options: []),
+          let match = regex.firstMatch(in: text, options: [], range: NSRange(location: 0, length: text.count)),
+          let range = Range(match.range(at: 1), in: text) else {
+      return nil
+    }
+    return String(text[range])
   }
   
   private func playKoreanStation(_ station: RadioStation) async {
@@ -313,14 +433,33 @@ class RadioPlayer: ObservableObject {
         }
       }
       .store(in: &cancellables)
+    
+    // Add time tracking for podcasts only
+    if station.type == .podcast {
+      setupTimeTracking()
+    }
   }
   
   func stop() {
     player?.pause()
+    
+    // Remove time observer
+    if let timeObserver = timeObserver {
+      player?.removeTimeObserver(timeObserver)
+      self.timeObserver = nil
+    }
+    
     player = nil
     isPlaying = false
     isLoading = false
     currentStation = nil
+    currentEpisode = nil
+    
+    // Reset progress tracking
+    currentTime = 0.0
+    duration = 0.0
+    progress = 0.0
+    
     cancellables.removeAll()
   }
   
@@ -336,6 +475,55 @@ class RadioPlayer: ObservableObject {
     }
   }
   
+  private func setupTimeTracking() {
+    guard let player = player else { return }
+    
+    // Remove existing time observer
+    if let timeObserver = timeObserver {
+      player.removeTimeObserver(timeObserver)
+    }
+    
+    // Add periodic time observer for progress tracking
+    let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+      guard let self = self else { return }
+      
+      let currentSeconds = CMTimeGetSeconds(time)
+      self.currentTime = currentSeconds.isFinite ? currentSeconds : 0.0
+      
+      // Get duration from current item
+      if let currentItem = player.currentItem {
+        let durationSeconds = CMTimeGetSeconds(currentItem.duration)
+        self.duration = durationSeconds.isFinite ? durationSeconds : 0.0
+        
+        // Calculate progress (0.0 to 1.0)
+        if self.duration > 0 {
+          self.progress = self.currentTime / self.duration
+        } else {
+          self.progress = 0.0
+        }
+      }
+    }
+  }
+  
+  func seek(to progress: Double) {
+    guard let player = player,
+          let currentItem = player.currentItem,
+          duration > 0 else { return }
+    
+    let targetTime = progress * duration
+    let cmTime = CMTime(seconds: targetTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    
+    player.seek(to: cmTime) { [weak self] completed in
+      if completed {
+        DispatchQueue.main.async {
+          self?.currentTime = targetTime
+          self?.progress = progress
+        }
+      }
+    }
+  }
+  
   func setVolume(_ newVolume: Float) {
     volume = newVolume
     player?.volume = newVolume
@@ -345,6 +533,7 @@ class RadioPlayer: ObservableObject {
 enum RadioStationType {
   case korean
   case international
+  case podcast
 }
 
 struct RadioStation: Identifiable, Equatable {

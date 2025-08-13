@@ -4,7 +4,7 @@ A macOS menu bar radio streaming application built with SwiftUI, featuring Korea
 
 ## Features
 
-- 🎵 **14 Radio Stations**: 11 Korean + 3 US stations
+- 🎵 **15 Audio Sources**: 11 Korean radio + 3 US radio + 1 podcast
 - 📻 **Menu Bar Interface**: Professional popover design
 - 🎛️ **Volume Control**: Easy audio level adjustment
 - 📊 **Grouped Stations**: Organized by broadcaster
@@ -42,9 +42,13 @@ A macOS menu bar radio streaming application built with SwiftUI, featuring Korea
 - **STAR 102.1** - Dallas-Fort Worth 80s/90s/Today  
 - **The New MiX 102.9** - Dallas-Fort Worth 2000s to Today
 
+### Podcasts (1)
+- **Syntax.fm** - Web Development Podcast by Wes Bos & Scott Tolinski
+
 ## Technical Features
 
 - **Official APIs**: Dynamic stream URL loading for Korean stations
+- **RSS Feed Parsing**: Automatic latest episode detection for podcasts
 - **HTTPS Streams**: ATS policy compliant with secure connections
 - **iHeart Radio Integration**: Official US station streams
 - **Color-Coded UI**: Broadcaster-specific themes

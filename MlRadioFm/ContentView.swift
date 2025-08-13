@@ -182,6 +182,21 @@ struct ContentView: View {
               stationButton(for: station)
             }
           }
+          
+          // Podcasts Group
+          VStack(spacing: 4) {
+            HStack {
+              Text("Podcasts")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.orange)
+              Spacer()
+            }
+            .padding(.horizontal, 16)
+            
+            ForEach(podcastStations) { station in
+              stationButton(for: station)
+            }
+          }
         }
         .padding(.horizontal, 16)
       }
@@ -217,6 +232,21 @@ struct ContentView: View {
     radioPlayer.stations.filter { $0.type == .international }
   }
   
+  private var podcastStations: [RadioStation] {
+    radioPlayer.stations.filter { $0.type == .podcast }
+  }
+  
+  // Helper function to format time in MM:SS format
+  private func formatTime(_ seconds: Double) -> String {
+    guard seconds.isFinite && seconds >= 0 else { return "0:00" }
+    
+    let totalSeconds = Int(seconds)
+    let minutes = totalSeconds / 60
+    let remainingSeconds = totalSeconds % 60
+    
+    return String(format: "%d:%02d", minutes, remainingSeconds)
+  }
+  
   // Station button component
   @ViewBuilder
   private func stationButton(for station: RadioStation) -> some View {
@@ -230,10 +260,64 @@ struct ContentView: View {
           .fill(radioPlayer.currentStation?.id == station.id ? Color.accentColor : Color.secondary.opacity(0.3))
           .frame(width: 6, height: 6)
         
-        Text(station.name.replacingOccurrences(of: "^(KBS|MBC|SBS)\\s+", with: "", options: .regularExpression))
-          .font(.system(size: 13, weight: .medium))
-          .foregroundColor(.primary)
-          .multilineTextAlignment(.leading)
+        VStack(alignment: .leading, spacing: 2) {
+          Text(station.name.replacingOccurrences(of: "^(KBS|MBC|SBS)\\s+", with: "", options: .regularExpression))
+            .font(.system(size: 13, weight: .medium))
+            .foregroundColor(.primary)
+            .multilineTextAlignment(.leading)
+          
+          // Show episode info for podcasts when selected
+          if station.type == .podcast && radioPlayer.currentStation?.id == station.id {
+            if let episode = radioPlayer.currentEpisode {
+              VStack(alignment: .leading, spacing: 1) {
+                // Episode number on its own line
+                if let number = episode.number {
+                  Text("Episode #\(number)")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.orange)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                // Episode title on its own line
+                Text(episode.title)
+                  .font(.system(size: 10))
+                  .foregroundColor(.secondary)
+                  .lineLimit(1)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Interactive progress bar for podcast playback
+                if radioPlayer.isPlaying && radioPlayer.duration > 0 {
+                  VStack(alignment: .leading, spacing: 2) {
+                    // Seekable progress slider
+                    Slider(value: Binding(
+                      get: { radioPlayer.progress },
+                      set: { newValue in
+                        radioPlayer.seek(to: newValue)
+                      }
+                    ), in: 0...1)
+                    .accentColor(.orange)
+                    .frame(height: 20)
+                    
+                    // Time display
+                    HStack {
+                      Text(formatTime(radioPlayer.currentTime))
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundColor(.secondary)
+                      Spacer()
+                      Text(formatTime(radioPlayer.duration))
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundColor(.secondary)
+                    }
+                  }
+                }
+              }
+            } else {
+              // Show loading state when episode info not yet available
+              Text("Loading episode...")
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
+            }
+          }
+        }
         
         Spacer()
         
