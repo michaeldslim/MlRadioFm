@@ -119,7 +119,6 @@ struct ContentView: View {
     
       // Modern Control Panel Card
       VStack(spacing: 16) {
-        // Status indicator with better styling
         Group {
           if radioPlayer.isLoading {
             HStack(spacing: 8) {
@@ -151,7 +150,7 @@ struct ContentView: View {
         
         // Enhanced Control Buttons
         HStack(spacing: 20) {
-          // Play/Pause Button with better design
+          // Play/Pause Button
           Button(action: {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
               if radioPlayer.isPlaying {
@@ -183,7 +182,7 @@ struct ContentView: View {
           .disabled(radioPlayer.currentStation == nil)
           .scaleEffect(radioPlayer.currentStation != nil ? 1.0 : 0.9)
           
-          // Stop Button with modern styling
+          // Stop Button
           Button(action: {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
               radioPlayer.stop()
@@ -242,7 +241,7 @@ struct ContentView: View {
       .cornerRadius(16)
       .padding(.horizontal, 16)
       
-      // Modern Tab Bar with navigation arrows
+      // Navigation arrows
       HStack(spacing: 0) {
         // Left arrow button
         Button(action: {
@@ -370,7 +369,7 @@ struct ContentView: View {
     }
   }
   
-  // Computed properties for grouped stations (kept for compatibility)
+  // For grouped stations
   private var allStations: [RadioStation] {
     radioPlayer.stations
   }
@@ -483,7 +482,7 @@ struct ContentView: View {
     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
   }
   
-  // Enhanced station group component (kept for compatibility)
+  // Enhanced station group component
   @ViewBuilder
   private func stationGroup(title: String, stations: [RadioStation], color: Color, icon: String) -> some View {
     VStack(spacing: 12) {
