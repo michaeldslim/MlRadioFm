@@ -1,239 +1,415 @@
 import SwiftUI
 
+enum StationCategory: String, CaseIterable {
+  case all = "전체"
+  case kbs = "KBS"
+  case mbc = "MBC"
+  case sbs = "SBS"
+  case other = "기타"
+  case international = "해외"
+  case podcast = "팟캐스트"
+  
+  var icon: String {
+    switch self {
+    case .all: return "radio"
+    case .kbs, .mbc, .sbs: return "tv"
+    case .other: return "antenna.radiowaves.left.and.right"
+    case .international: return "globe.americas"
+    case .podcast: return "mic"
+    }
+  }
+  
+  var color: Color {
+    switch self {
+    case .all: return .accentColor
+    case .kbs: return .blue
+    case .mbc: return .green
+    case .sbs: return .orange
+    case .other: return .purple
+    case .international: return .indigo
+    case .podcast: return .pink
+    }
+  }
+}
+
 struct ContentView: View {
   @StateObject private var radioPlayer = RadioPlayer()
   @State private var hasSelectedStation = false
+  @State private var searchText = ""
+  @State private var showingSearch = false
+  @State private var selectedTab: StationCategory = .all
+  @State private var currentScrollIndex = 0
   
   var body: some View {
-    VStack(spacing: 20) {
-      // Pretty Header with icon
-      VStack(spacing: 12) {
-        HStack(spacing: 8) {
-          Image(systemName: "radio")
-            .font(.title2)
-            .foregroundColor(.accentColor)
-          Text("ML Radio FM")
-            .font(.title2)
-            .fontWeight(.semibold)
-            .foregroundColor(.primary)
+    VStack(spacing: 0) {
+      // Modern Header with gradient background
+      VStack(spacing: 16) {
+        HStack {
+          VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 10) {
+              Image(systemName: "radio.fill")
+                .font(.title)
+                .foregroundStyle(.linearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+              Text("ML Radio FM")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            }
+            
+            if let station = radioPlayer.currentStation {
+              Text(station.name)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.leading)
+                .lineLimit(2)
+                .animation(.easeInOut(duration: 0.3), value: station.name)
+            } else if !hasSelectedStation {
+              Text("스테이션을 선택하세요")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            }
+          }
+          
+          Spacer()
+          
+          // Search toggle button
+          Button(action: {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+              showingSearch.toggle()
+              if !showingSearch {
+                searchText = ""
+              }
+            }
+          }) {
+            Image(systemName: showingSearch ? "xmark.circle.fill" : "magnifyingglass")
+              .font(.title2)
+              .foregroundColor(.accentColor)
+              .scaleEffect(showingSearch ? 1.1 : 1.0)
+          }
+          .buttonStyle(PlainButtonStyle())
         }
         
-        if let station = radioPlayer.currentStation {
-          Text(station.name)
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .multilineTextAlignment(.center)
-            .lineLimit(2)
-        } else if !hasSelectedStation {
-          Text("스테이션을 선택하세요")
-            .font(.caption)
-            .foregroundColor(.secondary)
+        // Search bar with animation
+        if showingSearch {
+          HStack {
+            Image(systemName: "magnifyingglass")
+              .foregroundColor(.secondary)
+            TextField("스테이션 검색...", text: $searchText)
+              .textFieldStyle(PlainTextFieldStyle())
+          }
+          .padding(.horizontal, 12)
+          .padding(.vertical, 8)
+          .background(Color(.controlBackgroundColor))
+          .cornerRadius(10)
+          .transition(.asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .move(edge: .top).combined(with: .opacity)
+          ))
         }
       }
-      .padding(.top, 16)
+      .padding(.horizontal, 20)
+      .padding(.vertical, 20)
+      .background(
+        LinearGradient(
+          colors: [Color(.windowBackgroundColor), Color(.controlBackgroundColor).opacity(0.3)],
+          startPoint: .top,
+          endPoint: .bottom
+        )
+      )
     
-      // Compact Status
-      Group {
-        if radioPlayer.isLoading {
-          HStack(spacing: 6) {
-            ProgressView()
-              .scaleEffect(0.7)
-            Text("연결 중...")
-              .font(.caption2)
+      // Modern Control Panel Card
+      VStack(spacing: 16) {
+        // Status indicator with better styling
+        Group {
+          if radioPlayer.isLoading {
+            HStack(spacing: 8) {
+              ProgressView()
+                .scaleEffect(0.8)
+                .tint(.accentColor)
+              Text("연결 중...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            }
+            .padding(.vertical, 8)
+          }
+            
+          if let error = radioPlayer.errorMessage {
+            HStack(spacing: 8) {
+              Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.orange)
+              Text(error)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.leading)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.orange.opacity(0.1))
+            .cornerRadius(8)
+          }
+        }
+        
+        // Enhanced Control Buttons
+        HStack(spacing: 20) {
+          // Play/Pause Button with better design
+          Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+              if radioPlayer.isPlaying {
+                radioPlayer.togglePlayPause()
+              } else if let station = radioPlayer.currentStation {
+                radioPlayer.play(station: station)
+              }
+            }
+          }) {
+            ZStack {
+              Circle()
+                .fill(
+                  LinearGradient(
+                    colors: radioPlayer.currentStation != nil ? [.blue, .purple] : [.gray.opacity(0.3), .gray.opacity(0.5)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                  )
+                )
+                .frame(width: 50, height: 50)
+                .shadow(color: radioPlayer.currentStation != nil ? .blue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+              
+              Image(systemName: radioPlayer.isPlaying ? "pause.fill" : "play.fill")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(.white)
+                .scaleEffect(radioPlayer.isPlaying ? 0.9 : 1.0)
+            }
+          }
+          .buttonStyle(PlainButtonStyle())
+          .disabled(radioPlayer.currentStation == nil)
+          .scaleEffect(radioPlayer.currentStation != nil ? 1.0 : 0.9)
+          
+          // Stop Button with modern styling
+          Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+              radioPlayer.stop()
+            }
+          }) {
+            ZStack {
+              Circle()
+                .fill(Color.secondary.opacity(0.8))
+                .frame(width: 44, height: 44)
+                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+              
+              Image(systemName: "stop.fill")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+            }
+          }
+          .buttonStyle(PlainButtonStyle())
+          .disabled(radioPlayer.currentStation == nil)
+          .opacity(radioPlayer.currentStation != nil ? 1.0 : 0.5)
+        }
+        
+        // Enhanced Volume Control
+        VStack(spacing: 8) {
+          HStack {
+            Text("볼륨")
+              .font(.caption)
+              .fontWeight(.medium)
+              .foregroundColor(.secondary)
+            Spacer()
+            Text("\(Int(radioPlayer.volume * 100))%")
+              .font(.caption)
+              .fontWeight(.medium)
+              .foregroundColor(.secondary)
+          }
+          
+          HStack(spacing: 12) {
+            Image(systemName: "speaker.fill")
+              .font(.caption)
+              .foregroundColor(.secondary)
+            
+            Slider(value: Binding(
+              get: { radioPlayer.volume },
+              set: { radioPlayer.setVolume($0) }
+            ), in: 0...1)
+            .tint(.accentColor)
+            
+            Image(systemName: "speaker.wave.3.fill")
+              .font(.caption)
               .foregroundColor(.secondary)
           }
         }
-          
-        if let error = radioPlayer.errorMessage {
-          Text(error)
-            .font(.caption2)
-            .foregroundColor(.red)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 16)
-        }
       }
+      .padding(.horizontal, 20)
+      .padding(.vertical, 16)
+      .background(Color(.controlBackgroundColor).opacity(0.5))
+      .cornerRadius(16)
+      .padding(.horizontal, 16)
       
-      // Custom Sized Control Buttons
-      HStack(spacing: 16) {
-        // Play/Pause Button - Custom Size
-        ZStack {
-          Circle()
-            .fill(Color.accentColor)
-            .frame(width: 36, height: 36)
-          
-          Image(systemName: radioPlayer.isPlaying ? "pause.fill" : "play.fill")
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.white)
+      // Modern Tab Bar with navigation arrows
+      HStack(spacing: 0) {
+        // Left arrow button
+        Button(action: {
+          scrollLeft()
+        }) {
+          Image(systemName: "chevron.left")
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundColor(.accentColor)
+            .frame(width: 30, height: 40)
+            .background(Color.clear)
         }
-        .onTapGesture {
-          if radioPlayer.isPlaying {
-            radioPlayer.togglePlayPause()
-          } else if let station = radioPlayer.currentStation {
-            radioPlayer.play(station: station)
-          }
-        }
-        .opacity(radioPlayer.currentStation != nil ? 1.0 : 0.5)
+        .buttonStyle(PlainButtonStyle())
         
-        // Stop Button - Custom Size
-        ZStack {
-          Circle()
-            .fill(Color.secondary)
-            .frame(width: 36, height: 36)
-          
-          Image(systemName: "stop.fill")
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.white)
+        // Horizontal scrollable tabs
+        ScrollViewReader { proxy in
+          ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+              ForEach(Array(StationCategory.allCases.enumerated()), id: \.element) { index, category in
+                tabButton(for: category)
+                  .id(index)
+              }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+          }
+          .onChange(of: currentScrollIndex) { _ in
+            withAnimation(.easeInOut(duration: 0.3)) {
+              proxy.scrollTo(currentScrollIndex, anchor: .center)
+            }
+          }
         }
-        .onTapGesture {
-          radioPlayer.stop()
+        
+        // Right arrow button
+        Button(action: {
+          scrollRight()
+        }) {
+          Image(systemName: "chevron.right")
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundColor(.accentColor)
+            .frame(width: 30, height: 40)
+            .background(Color.clear)
         }
-        .opacity(radioPlayer.currentStation != nil ? 1.0 : 0.5)
+        .buttonStyle(PlainButtonStyle())
       }
+      .background(Color(.controlBackgroundColor).opacity(0.3))
       
-      // Compact Volume
-      HStack(spacing: 8) {
-        Image(systemName: "speaker.fill")
-          .font(.caption)
-          .foregroundColor(.secondary)
-        Slider(value: Binding(
-          get: { radioPlayer.volume },
-          set: { radioPlayer.setVolume($0) }
-          ), in: 0...1)
-          .tint(.accentColor)
-        Image(systemName: "speaker.wave.3.fill")
-          .font(.caption)
-          .foregroundColor(.secondary)
-      }
-      .padding(.horizontal, 24)
-      // Grouped Station List by Broadcaster
-      ScrollView {
+      // Station List based on selected tab
+      ScrollView(.vertical) {
         LazyVStack(spacing: 12) {
-          // KBS Group
-          VStack(spacing: 4) {
-            HStack {
-              Text("KBS")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.accentColor)
-              Spacer()
+          // Show filtered results if searching
+          if showingSearch && !searchText.isEmpty {
+            let filteredStations = stationsForCategory(.all).filter { station in
+              station.name.localizedCaseInsensitiveContains(searchText)
             }
-            .padding(.horizontal, 16)
             
-            ForEach(kbsStations) { station in
-              stationButton(for: station)
+            if filteredStations.isEmpty {
+              VStack(spacing: 12) {
+                Image(systemName: "magnifyingglass")
+                  .font(.title2)
+                  .foregroundColor(.secondary)
+                Text("검색 결과가 없습니다")
+                  .font(.subheadline)
+                  .foregroundColor(.secondary)
+                Text("다른 키워드로 검색해보세요")
+                  .font(.caption)
+                  .foregroundColor(.secondary)
+              }
+              .padding(.vertical, 40)
+            } else {
+              ForEach(filteredStations) { station in
+                stationButton(for: station)
+              }
             }
-          }
-          
-          // MBC Group
-          VStack(spacing: 4) {
-            HStack {
-              Text("MBC")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.green)
-              Spacer()
-            }
-            .padding(.horizontal, 16)
-            
-            ForEach(mbcStations) { station in
-              stationButton(for: station)
-            }
-          }
-          
-          // SBS Group
-          VStack(spacing: 4) {
-            HStack {
-              Text("SBS")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.orange)
-              Spacer()
-            }
-            .padding(.horizontal, 16)
-            
-            ForEach(sbsStations) { station in
-              stationButton(for: station)
-            }
-          }
-          
-          // Other Korean Broadcasters Group
-          VStack(spacing: 4) {
-            HStack {
-              Text("기타")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.purple)
-              Spacer()
-            }
-            .padding(.horizontal, 16)
-            
-            ForEach(otherKoreanStations) { station in
-              stationButton(for: station)
-            }
-          }
-          
-          // US Radio Group
-          VStack(spacing: 4) {
-            HStack {
-              Text("미국 라디오")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.blue)
-              Spacer()
-            }
-            .padding(.horizontal, 16)
-            
-            ForEach(usStations) { station in
-              stationButton(for: station)
-            }
-          }
-          
-          // Podcasts Group
-          VStack(spacing: 4) {
-            HStack {
-              Text("Podcasts")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.orange)
-              Spacer()
-            }
-            .padding(.horizontal, 16)
-            
-            ForEach(podcastStations) { station in
-              stationButton(for: station)
+          } else {
+            // Show stations for selected category
+            let stations = stationsForCategory(selectedTab)
+            if stations.isEmpty {
+              VStack(spacing: 12) {
+                Image(systemName: selectedTab.icon)
+                  .font(.title2)
+                  .foregroundColor(.secondary)
+                Text("이 카테고리에는 스테이션이 없습니다")
+                  .font(.subheadline)
+                  .foregroundColor(.secondary)
+              }
+              .padding(.vertical, 40)
+            } else {
+              ForEach(stations) { station in
+                stationButton(for: station)
+              }
             }
           }
         }
         .padding(.horizontal, 16)
+        .padding(.bottom, 20)
       }
       Spacer()
     }
-    .frame(width: 280, height: 480)
+    .frame(width: 280, height: 580)
     .background(Color(.windowBackgroundColor))
   }
   
-  // Computed properties for grouped stations
-  private var kbsStations: [RadioStation] {
-    radioPlayer.stations.filter { $0.name.hasPrefix("KBS") }
-  }
-  
-  private var mbcStations: [RadioStation] {
-    radioPlayer.stations.filter { $0.name.hasPrefix("MBC") }
-  }
-  
-  private var sbsStations: [RadioStation] {
-    radioPlayer.stations.filter { $0.name.hasPrefix("SBS") }
-  }
-  
-  private var otherKoreanStations: [RadioStation] {
-    radioPlayer.stations.filter { 
-      !$0.name.hasPrefix("KBS") && 
-      !$0.name.hasPrefix("MBC") && 
-      !$0.name.hasPrefix("SBS") &&
-      $0.type == .korean
+  // Station filtering by category
+  private func stationsForCategory(_ category: StationCategory) -> [RadioStation] {
+    switch category {
+    case .all:
+      return radioPlayer.stations
+    case .kbs:
+      return radioPlayer.stations.filter { $0.name.hasPrefix("KBS") }
+    case .mbc:
+      return radioPlayer.stations.filter { $0.name.hasPrefix("MBC") }
+    case .sbs:
+      return radioPlayer.stations.filter { $0.name.hasPrefix("SBS") }
+    case .other:
+      return radioPlayer.stations.filter { 
+        !$0.name.hasPrefix("KBS") && 
+        !$0.name.hasPrefix("MBC") && 
+        !$0.name.hasPrefix("SBS") &&
+        $0.type == .korean
+      }
+    case .international:
+      return radioPlayer.stations.filter { $0.type == .international }
+    case .podcast:
+      return radioPlayer.stations.filter { $0.type == .podcast }
     }
   }
   
+  // Computed properties for grouped stations (kept for compatibility)
+  private var allStations: [RadioStation] {
+    radioPlayer.stations
+  }
+  
+  private var kbsStations: [RadioStation] {
+    stationsForCategory(.kbs)
+  }
+  
+  private var mbcStations: [RadioStation] {
+    stationsForCategory(.mbc)
+  }
+  
+  private var sbsStations: [RadioStation] {
+    stationsForCategory(.sbs)
+  }
+  
+  private var otherKoreanStations: [RadioStation] {
+    stationsForCategory(.other)
+  }
+  
   private var usStations: [RadioStation] {
-    radioPlayer.stations.filter { $0.type == .international }
+    stationsForCategory(.international)
   }
   
   private var podcastStations: [RadioStation] {
-    radioPlayer.stations.filter { $0.type == .podcast }
+    stationsForCategory(.podcast)
+  }
+  
+  // Scroll navigation functions
+  private func scrollLeft() {
+    if currentScrollIndex > 0 {
+      currentScrollIndex -= 1
+    }
+  }
+  
+  private func scrollRight() {
+    if currentScrollIndex < StationCategory.allCases.count - 1 {
+      currentScrollIndex += 1
+    }
   }
   
   // Helper function to format time in MM:SS format
@@ -247,94 +423,271 @@ struct ContentView: View {
     return String(format: "%d:%02d", minutes, remainingSeconds)
   }
   
-  // Station button component
+  // Compact tab button component
+  @ViewBuilder
+  private func tabButton(for category: StationCategory) -> some View {
+    let isSelected = selectedTab == category
+    let stationCount = stationsForCategory(category).count
+    
+    Button(action: {
+      withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+        selectedTab = category
+      }
+    }) {
+      HStack(spacing: 4) {
+        Image(systemName: category.icon)
+          .font(.system(size: 11, weight: .medium))
+          .foregroundColor(isSelected ? .white : category.color)
+        
+        Text(category.rawValue)
+          .font(.system(size: 12, weight: .semibold))
+          .foregroundColor(isSelected ? .white : .primary)
+          .lineLimit(1)
+        
+        if stationCount > 0 {
+          Text("\(stationCount)")
+            .font(.system(size: 9, weight: .bold))
+            .foregroundColor(isSelected ? category.color : .white)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 1)
+            .background(isSelected ? .white : category.color)
+            .cornerRadius(6)
+        }
+      }
+      .padding(.horizontal, 9)
+      .padding(.vertical, 7)
+      .frame(minWidth: 51)
+      .background(
+        Group {
+          if isSelected {
+            RoundedRectangle(cornerRadius: 14)
+              .fill(LinearGradient(
+                colors: [category.color, category.color.opacity(0.8)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+              ))
+              .shadow(color: category.color.opacity(0.3), radius: 3, x: 0, y: 1)
+          } else {
+            RoundedRectangle(cornerRadius: 14)
+              .fill(Color(.controlBackgroundColor))
+              .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                  .stroke(category.color.opacity(0.3), lineWidth: 1)
+              )
+          }
+        }
+      )
+      .scaleEffect(isSelected ? 1.02 : 1.0)
+    }
+    .buttonStyle(PlainButtonStyle())
+    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+  }
+  
+  // Enhanced station group component (kept for compatibility)
+  @ViewBuilder
+  private func stationGroup(title: String, stations: [RadioStation], color: Color, icon: String) -> some View {
+    VStack(spacing: 12) {
+      // Group header with modern styling
+      HStack(spacing: 8) {
+        Image(systemName: icon)
+          .font(.system(size: 14, weight: .semibold))
+          .foregroundColor(color)
+        
+        Text(title)
+          .font(.system(size: 15, weight: .bold))
+          .foregroundColor(color)
+        
+        Spacer()
+        
+        Text("\(stations.count)")
+          .font(.system(size: 12, weight: .medium))
+          .foregroundColor(.secondary)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 2)
+          .background(color.opacity(0.1))
+          .cornerRadius(8)
+      }
+      .padding(.horizontal, 16)
+      
+      // Station cards
+      VStack(spacing: 8) {
+        ForEach(stations) { station in
+          stationButton(for: station)
+        }
+      }
+    }
+    .padding(.vertical, 8)
+    .background(Color(.controlBackgroundColor).opacity(0.3))
+    .cornerRadius(12)
+  }
+  
+  // Enhanced station button component
   @ViewBuilder
   private func stationButton(for station: RadioStation) -> some View {
     Button(action: {
-      hasSelectedStation = true
-      radioPlayer.play(station: station)
+      withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+        hasSelectedStation = true
+        radioPlayer.play(station: station)
+      }
     }) {
-      HStack(spacing: 12) {
-        // Station indicator
-        Circle()
-          .fill(radioPlayer.currentStation?.id == station.id ? Color.accentColor : Color.secondary.opacity(0.3))
-          .frame(width: 6, height: 6)
+      HStack(spacing: 14) {
+        // Enhanced station indicator with animation
+        ZStack {
+          Circle()
+            .fill(radioPlayer.currentStation?.id == station.id ? 
+                  LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing) : 
+                  LinearGradient(colors: [Color.secondary.opacity(0.2)], startPoint: .center, endPoint: .center))
+            .frame(width: 10, height: 10)
+            .scaleEffect(radioPlayer.currentStation?.id == station.id ? 1.2 : 1.0)
+          
+          if radioPlayer.currentStation?.id == station.id && radioPlayer.isPlaying {
+            Circle()
+              .fill(Color.white)
+              .frame(width: 4, height: 4)
+              .scaleEffect(radioPlayer.isPlaying ? 1.0 : 0.8)
+          }
+        }
+        .animation(.easeInOut(duration: 0.3), value: radioPlayer.currentStation?.id == station.id)
         
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
           Text(station.name.replacingOccurrences(of: "^(KBS|MBC|SBS)\\s+", with: "", options: .regularExpression))
-            .font(.system(size: 13, weight: .medium))
+            .font(.system(size: 14, weight: .medium))
             .foregroundColor(.primary)
             .multilineTextAlignment(.leading)
+            .lineLimit(2)
+          
+          // Station type indicator
+          HStack(spacing: 6) {
+            Image(systemName: stationTypeIcon(for: station.type))
+              .font(.system(size: 10))
+              .foregroundColor(.secondary)
+            
+            Text(stationTypeText(for: station.type))
+              .font(.system(size: 10, weight: .medium))
+              .foregroundColor(.secondary)
+          }
           
           // Show episode info for podcasts when selected
           if station.type == .podcast && radioPlayer.currentStation?.id == station.id {
             if let episode = radioPlayer.currentEpisode {
-              VStack(alignment: .leading, spacing: 1) {
-                // Episode number on its own line
+              VStack(alignment: .leading, spacing: 4) {
+                // Episode info
                 if let number = episode.number {
                   Text("Episode #\(number)")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.orange)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                // Episode title on its own line
-                Text(episode.title)
-                  .font(.system(size: 10))
-                  .foregroundColor(.secondary)
-                  .lineLimit(1)
-                  .frame(maxWidth: .infinity, alignment: .leading)
                 
-                // Interactive progress bar for podcast playback
+                Text(episode.title)
+                  .font(.system(size: 11))
+                  .foregroundColor(.secondary)
+                  .lineLimit(2)
+                
+                // Enhanced progress bar for podcast playback
                 if radioPlayer.isPlaying && radioPlayer.duration > 0 {
-                  VStack(alignment: .leading, spacing: 2) {
-                    // Seekable progress slider
+                  VStack(alignment: .leading, spacing: 4) {
                     Slider(value: Binding(
                       get: { radioPlayer.progress },
                       set: { newValue in
                         radioPlayer.seek(to: newValue)
                       }
                     ), in: 0...1)
-                    .accentColor(.orange)
-                    .frame(height: 20)
+                    .tint(.orange)
+                    .frame(height: 24)
                     
-                    // Time display
                     HStack {
                       Text(formatTime(radioPlayer.currentTime))
-                        .font(.system(size: 8, weight: .medium))
+                        .font(.system(size: 9, weight: .medium))
                         .foregroundColor(.secondary)
                       Spacer()
                       Text(formatTime(radioPlayer.duration))
-                        .font(.system(size: 8, weight: .medium))
+                        .font(.system(size: 9, weight: .medium))
                         .foregroundColor(.secondary)
                     }
                   }
                 }
               }
+              .padding(.top, 4)
             } else {
-              // Show loading state when episode info not yet available
-              Text("Loading episode...")
-                .font(.system(size: 10))
-                .foregroundColor(.secondary)
+              HStack(spacing: 4) {
+                ProgressView()
+                  .scaleEffect(0.6)
+                Text("Loading episode...")
+                  .font(.system(size: 10))
+                  .foregroundColor(.secondary)
+              }
             }
           }
         }
         
         Spacer()
         
-        if radioPlayer.currentStation?.id == station.id && radioPlayer.isPlaying {
-          Image(systemName: "speaker.wave.2.fill")
-            .font(.system(size: 10))
-            .foregroundColor(.accentColor)
+        // Enhanced playing indicator
+        if radioPlayer.currentStation?.id == station.id {
+          VStack(spacing: 4) {
+            if radioPlayer.isPlaying {
+              Image(systemName: "speaker.wave.2.fill")
+                .font(.system(size: 14))
+                .foregroundColor(.blue)
+                .symbolEffect(.variableColor.iterative, options: .repeating)
+            } else if radioPlayer.isLoading {
+              ProgressView()
+                .scaleEffect(0.7)
+                .tint(.blue)
+            } else {
+              Image(systemName: "pause.circle.fill")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+            }
+          }
         }
       }
       .padding(.horizontal, 16)
-      .padding(.vertical, 8)
+      .padding(.vertical, 12)
       .background(
-        radioPlayer.currentStation?.id == station.id ? Color.accentColor.opacity(0.08) : Color.clear
+        Group {
+          if radioPlayer.currentStation?.id == station.id {
+            RoundedRectangle(cornerRadius: 12)
+              .fill(LinearGradient(
+                colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.05)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+              ))
+              .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                  .stroke(LinearGradient(
+                    colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.2)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                  ), lineWidth: 1)
+              )
+          } else {
+            RoundedRectangle(cornerRadius: 12)
+              .fill(Color(.controlBackgroundColor).opacity(0.5))
+          }
+        }
       )
-      .cornerRadius(6)
+      .scaleEffect(radioPlayer.currentStation?.id == station.id ? 1.02 : 1.0)
     }
     .buttonStyle(PlainButtonStyle())
+    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: radioPlayer.currentStation?.id == station.id)
+  }
+  
+  // Helper functions for station type display
+  private func stationTypeIcon(for type: RadioStationType) -> String {
+    switch type {
+    case .korean: return "antenna.radiowaves.left.and.right"
+    case .international: return "globe"
+    case .podcast: return "mic"
+    }
+  }
+  
+  private func stationTypeText(for type: RadioStationType) -> String {
+    switch type {
+    case .korean: return "한국 방송"
+    case .international: return "해외 방송"
+    case .podcast: return "팟캐스트"
+    }
   }
 }
 
