@@ -28,7 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       let menu = NSMenu()
       menu.addItem(NSMenuItem(title: "MlRadioFm", action: #selector(showHelp), keyEquivalent: ""))
       menu.addItem(NSMenuItem.separator())
-      menu.addItem(NSMenuItem(title: "Show Radio", action: #selector(showRadio), keyEquivalent: ""))
+      menu.addItem(NSMenuItem(title: "Show Radio", action: #selector(showRadio), keyEquivalent: "o"))
       menu.addItem(NSMenuItem.separator())
       menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
       
