@@ -144,10 +144,10 @@ class RadioPlayer: ObservableObject {
     // 기타 방송사 (HTTPS 공식 스트림)
     RadioStation(name: "BBS 불교방송", url: "bbs://main", type: .korean),
     RadioStation(name: "YTN 라디오", url: "ytn://main", type: .korean),
+    RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean),
     RadioStation(name: "KISS FM 106.1", url: "https://n35a-e2.revma.ihrhls.com/zc181", type: .international),
     RadioStation(name: "STAR 102.1", url: "https://n10a-e2.revma.ihrhls.com/zc2815", type: .international),
     RadioStation(name: "The New MiX 102.9", url: "https://n10a-e2.revma.ihrhls.com/zc2237", type: .international),
-    RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean),
     
     // Podcasts
     RadioStation(name: "Syntax.fm", url: "https://feed.syntax.fm/rss", type: .podcast),
