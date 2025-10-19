@@ -549,7 +549,7 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.3), value: radioPlayer.currentStation?.id == station.id)
         
         VStack(alignment: .leading, spacing: 4) {
-          Text(station.name.replacingOccurrences(of: "^(KBS|MBC|SBS)\\s+", with: "", options: .regularExpression))
+          Text(station.name)
             .font(.system(size: 14, weight: .medium))
             .foregroundColor(.primary)
             .multilineTextAlignment(.leading)
