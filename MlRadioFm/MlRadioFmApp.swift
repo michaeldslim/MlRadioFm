@@ -43,6 +43,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // Hide dock icon
     NSApp.setActivationPolicy(.accessory)
+    
+    // Automatically show radio stations on launch
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+      self?.showRadio()
+    }
   }
   
   @objc func showHelp() {

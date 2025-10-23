@@ -127,24 +127,24 @@ class RadioPlayer: ObservableObject {
   let stations = [
     // 한국 라디오 스테이션 (API 기반 동적 로딩)
     // KBS 라디오
-    RadioStation(name: "KBS 1라디오", url: "kbs://21", type: .korean),
-    RadioStation(name: "KBS 2라디오 해피FM", url: "kbs://22", type: .korean),
-    RadioStation(name: "KBS 3라디오 쿨FM", url: "kbs://23", type: .korean),
-    RadioStation(name: "KBS 클래식FM", url: "kbs://24", type: .korean),
+    RadioStation(name: "KBS 1라디오", url: "kbs://21", type: .korean, subtitle: "KBS Radio 1"),
+    RadioStation(name: "KBS 2라디오 해피FM", url: "kbs://22", type: .korean, subtitle: "KBS Happy FM"),
+    RadioStation(name: "KBS 3라디오 쿨FM", url: "kbs://23", type: .korean, subtitle: "KBS Cool FM"),
+    RadioStation(name: "KBS 클래식FM", url: "kbs://24", type: .korean, subtitle: "KBS Classic FM"),
     
     // MBC 라디오
-    RadioStation(name: "MBC 표준FM", url: "mbc://sfm", type: .korean),
-    RadioStation(name: "MBC FM4U", url: "mbc://mfm", type: .korean),
-    RadioStation(name: "MBC 올댓뮤직", url: "mbc://chm", type: .korean),
+    RadioStation(name: "MBC 표준FM", url: "mbc://sfm", type: .korean, subtitle: "MBC Standard FM"),
+    RadioStation(name: "MBC FM4U", url: "mbc://mfm", type: .korean, subtitle: "MBC FM4U"),
+    RadioStation(name: "MBC 올댓뮤직", url: "mbc://chm", type: .korean, subtitle: "MBC All That Music"),
     
     // SBS 라디오
-    RadioStation(name: "SBS 러브FM", url: "sbs://love", type: .korean),
-    RadioStation(name: "SBS 파워FM", url: "sbs://power", type: .korean),
+    RadioStation(name: "SBS 러브FM", url: "sbs://love", type: .korean, subtitle: "SBS Love FM"),
+    RadioStation(name: "SBS 파워FM", url: "sbs://power", type: .korean, subtitle: "SBS Power FM"),
     
     // 기타 방송사 (HTTPS 공식 스트림)
-    RadioStation(name: "BBS 불교방송", url: "bbs://main", type: .korean),
-    RadioStation(name: "YTN 라디오", url: "ytn://main", type: .korean),
-    RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean),
+    RadioStation(name: "BBS 불교방송", url: "bbs://main", type: .korean, subtitle: "BBS Buddhist Broadcasting"),
+    RadioStation(name: "YTN 라디오", url: "ytn://main", type: .korean, subtitle: "YTN Radio"),
+    RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean, subtitle: "Arirang Radio"),
     RadioStation(name: "KISS FM 106.1", url: "https://n35a-e2.revma.ihrhls.com/zc181", type: .international),
     RadioStation(name: "STAR 102.1", url: "https://n10a-e2.revma.ihrhls.com/zc2815", type: .international),
     RadioStation(name: "The New MiX 102.9", url: "https://n10a-e2.revma.ihrhls.com/zc2237", type: .international),
@@ -541,10 +541,12 @@ struct RadioStation: Identifiable, Equatable {
   let name: String
   let url: String
   let type: RadioStationType
+  let subtitle: String?
   
-  init(name: String, url: String, type: RadioStationType = .international) {
+  init(name: String, url: String, type: RadioStationType = .international, subtitle: String? = nil) {
     self.name = name
     self.url = url
     self.type = type
+    self.subtitle = subtitle
   }
 }

@@ -1,13 +1,25 @@
 import SwiftUI
 
 enum StationCategory: String, CaseIterable {
-  case all = "전체"
-  case kbs = "KBS"
-  case mbc = "MBC"
-  case sbs = "SBS"
-  case other = "기타"
-  case international = "해외"
-  case podcast = "팟캐스트"
+  case all
+  case kbs
+  case mbc
+  case sbs
+  case other
+  case international
+  case podcast
+  
+  func localizedName(_ manager: LocalizationManager) -> String {
+    switch self {
+    case .all: return manager.localized("category_all")
+    case .kbs: return "KBS"
+    case .mbc: return "MBC"
+    case .sbs: return "SBS"
+    case .other: return manager.localized("category_other")
+    case .international: return manager.localized("category_international")
+    case .podcast: return manager.localized("category_podcast")
+    }
+  }
   
   var icon: String {
     switch self {
@@ -34,6 +46,7 @@ enum StationCategory: String, CaseIterable {
 
 struct ContentView: View {
   @StateObject private var radioPlayer = RadioPlayer()
+  @StateObject private var localizationManager = LocalizationManager()
   @State private var hasSelectedStation = false
   @State private var searchText = ""
   @State private var showingSearch = false
@@ -50,7 +63,7 @@ struct ContentView: View {
               Image(systemName: "radio.fill")
                 .font(.title)
                 .foregroundStyle(.linearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-              Text("ML Radio FM")
+              Text(localizationManager.localized("app_title"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
@@ -64,7 +77,7 @@ struct ContentView: View {
                 .lineLimit(2)
                 .animation(.easeInOut(duration: 0.3), value: station.name)
             } else if !hasSelectedStation {
-              Text("스테이션을 선택하세요")
+              Text(localizationManager.localized("select_station"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             }
@@ -72,21 +85,43 @@ struct ContentView: View {
           
           Spacer()
           
-          // Search toggle button
-          Button(action: {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-              showingSearch.toggle()
-              if !showingSearch {
-                searchText = ""
+          VStack(spacing: 8) {
+            // Language toggle button
+            Button(action: {
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                localizationManager.toggleLanguage()
               }
+            }) {
+              HStack(spacing: 4) {
+                Text(localizationManager.currentLanguage.flag)
+                  .font(.system(size: 16))
+                Text(localizationManager.currentLanguage == .english ? "EN" : "KO")
+                  .font(.system(size: 11, weight: .semibold))
+                  .foregroundColor(.accentColor)
+              }
+              .padding(.horizontal, 8)
+              .padding(.vertical, 6)
+              .background(Color(.controlBackgroundColor))
+              .cornerRadius(8)
             }
-          }) {
-            Image(systemName: showingSearch ? "xmark.circle.fill" : "magnifyingglass")
-              .font(.title2)
-              .foregroundColor(.accentColor)
-              .scaleEffect(showingSearch ? 1.1 : 1.0)
+            .buttonStyle(PlainButtonStyle())
+            
+            // Search toggle button
+            Button(action: {
+              withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                showingSearch.toggle()
+                if !showingSearch {
+                  searchText = ""
+                }
+              }
+            }) {
+              Image(systemName: showingSearch ? "xmark.circle.fill" : "magnifyingglass")
+                .font(.title2)
+                .foregroundColor(.accentColor)
+                .scaleEffect(showingSearch ? 1.1 : 1.0)
+            }
+            .buttonStyle(PlainButtonStyle())
           }
-          .buttonStyle(PlainButtonStyle())
         }
         
         // Search bar with animation
@@ -94,7 +129,7 @@ struct ContentView: View {
           HStack {
             Image(systemName: "magnifyingglass")
               .foregroundColor(.secondary)
-            TextField("스테이션 검색...", text: $searchText)
+            TextField(localizationManager.localized("search_placeholder"), text: $searchText)
               .textFieldStyle(PlainTextFieldStyle())
           }
           .padding(.horizontal, 12)
@@ -125,7 +160,7 @@ struct ContentView: View {
               ProgressView()
                 .scaleEffect(0.8)
                 .tint(.accentColor)
-              Text("연결 중...")
+              Text(localizationManager.localized("connecting"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             }
@@ -207,7 +242,7 @@ struct ContentView: View {
         // Enhanced Volume Control
         VStack(spacing: 8) {
           HStack {
-            Text("볼륨")
+            Text(localizationManager.localized("volume"))
               .font(.caption)
               .fontWeight(.medium)
               .foregroundColor(.secondary)
@@ -302,10 +337,10 @@ struct ContentView: View {
                 Image(systemName: "magnifyingglass")
                   .font(.title2)
                   .foregroundColor(.secondary)
-                Text("검색 결과가 없습니다")
+                Text(localizationManager.localized("no_results"))
                   .font(.subheadline)
                   .foregroundColor(.secondary)
-                Text("다른 키워드로 검색해보세요")
+                Text(localizationManager.localized("try_different_keyword"))
                   .font(.caption)
                   .foregroundColor(.secondary)
               }
@@ -323,7 +358,7 @@ struct ContentView: View {
                 Image(systemName: selectedTab.icon)
                   .font(.title2)
                   .foregroundColor(.secondary)
-                Text("이 카테고리에는 스테이션이 없습니다")
+                Text(localizationManager.localized("no_stations_in_category"))
                   .font(.subheadline)
                   .foregroundColor(.secondary)
               }
@@ -438,7 +473,7 @@ struct ContentView: View {
           .font(.system(size: 11, weight: .medium))
           .foregroundColor(isSelected ? .white : category.color)
         
-        Text(category.rawValue)
+        Text(category.localizedName(localizationManager))
           .font(.system(size: 12, weight: .semibold))
           .foregroundColor(isSelected ? .white : .primary)
           .lineLimit(1)
@@ -555,6 +590,16 @@ struct ContentView: View {
             .multilineTextAlignment(.leading)
             .lineLimit(2)
           
+          // Show English subtitle for Korean stations when in English mode
+          if localizationManager.currentLanguage == .english,
+             let subtitle = station.subtitle,
+             !subtitle.isEmpty {
+            Text(subtitle)
+              .font(.system(size: 11, weight: .regular))
+              .foregroundColor(.blue.opacity(0.8))
+              .italic()
+          }
+          
           // Station type indicator
           HStack(spacing: 6) {
             Image(systemName: stationTypeIcon(for: station.type))
@@ -611,7 +656,7 @@ struct ContentView: View {
               HStack(spacing: 4) {
                 ProgressView()
                   .scaleEffect(0.6)
-                Text("Loading episode...")
+                Text(localizationManager.localized("loading_episode"))
                   .font(.system(size: 10))
                   .foregroundColor(.secondary)
               }
@@ -683,9 +728,9 @@ struct ContentView: View {
   
   private func stationTypeText(for type: RadioStationType) -> String {
     switch type {
-    case .korean: return "한국 방송"
-    case .international: return "해외 방송"
-    case .podcast: return "팟캐스트"
+    case .korean: return localizationManager.localized("station_type_korean")
+    case .international: return localizationManager.localized("station_type_international")
+    case .podcast: return localizationManager.localized("station_type_podcast")
     }
   }
 }
