@@ -11,6 +11,8 @@
     A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
     A1234567890ABCDEF005 /* RadioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* RadioPlayer.swift */; };
     A1234567890ABCDEF007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF008 /* Assets.xcassets */; };
+    A1234567890ABCDEF028 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF029 /* LocalizationManager.swift */; };
+    A1234567890ABCDEF030 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF031 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +22,9 @@
     A1234567890ABCDEF008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
     A1234567890ABCDEF011 /* MlRadioFm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MlRadioFm.app; sourceTree = BUILT_PRODUCTS_DIR; };
     A1234567890ABCDEF012 /* MlRadioFm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MlRadioFm.entitlements; sourceTree = "<group>"; };
+    A1234567890ABCDEF029 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+    A1234567890ABCDEF032 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+    A1234567890ABCDEF033 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,7 +52,9 @@
         A1234567890ABCDEF002 /* MlRadioFmApp.swift */,
         A1234567890ABCDEF004 /* ContentView.swift */,
         A1234567890ABCDEF006 /* RadioPlayer.swift */,
+        A1234567890ABCDEF029 /* LocalizationManager.swift */,
         A1234567890ABCDEF008 /* Assets.xcassets */,
+        A1234567890ABCDEF031 /* Localizable.strings */,
         A1234567890ABCDEF012 /* MlRadioFm.entitlements */,
       );
       path = MlRadioFm;
@@ -102,6 +109,7 @@
       hasScannedForEncodings = 0;
       knownRegions = (
         en,
+        ko,
         Base,
       );
       mainGroup = A1234567890ABCDEF014;
@@ -120,6 +128,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1234567890ABCDEF007 /* Assets.xcassets in Resources */,
+				A1234567890ABCDEF030 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,6 +141,7 @@
 			files = (
 				A1234567890ABCDEF003 /* ContentView.swift in Sources */,
 				A1234567890ABCDEF005 /* RadioPlayer.swift in Sources */,
+				A1234567890ABCDEF028 /* LocalizationManager.swift in Sources */,
 				A1234567890ABCDEF001 /* MlRadioFmApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -308,6 +318,18 @@
       name = Release;
     };
 /* End XCBuildConfiguration section */
+
+/* Begin PBXVariantGroup section */
+		A1234567890ABCDEF031 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A1234567890ABCDEF032 /* en */,
+				A1234567890ABCDEF033 /* ko */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCConfigurationList section */
     A1234567890ABCDEF019 /* Build configuration list for PBXNativeTarget "MlRadioFm" */ = {

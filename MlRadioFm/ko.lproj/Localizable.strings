@@ -1,0 +1,38 @@
+/* Main App Title */
+"app_title" = "ML Radio FM";
+
+/* Header */
+"select_station" = "스테이션을 선택하세요";
+
+/* Search */
+"search" = "검색";
+"search_placeholder" = "스테이션 검색...";
+"no_results" = "검색 결과가 없습니다";
+"try_different_keyword" = "다른 키워드로 검색해보세요";
+
+/* Control Panel */
+"connecting" = "연결 중...";
+"volume" = "볼륨";
+
+/* Categories */
+"category_all" = "전체";
+"category_kbs" = "KBS";
+"category_mbc" = "MBC";
+"category_sbs" = "SBS";
+"category_other" = "기타";
+"category_international" = "해외";
+"category_podcast" = "팟캐스트";
+
+/* Station Types */
+"station_type_korean" = "한국 방송";
+"station_type_international" = "해외 방송";
+"station_type_podcast" = "팟캐스트";
+
+/* Messages */
+"no_stations_in_category" = "이 카테고리에는 스테이션이 없습니다";
+"loading_episode" = "에피소드 로딩 중...";
+"episode_number" = "에피소드 #%d";
+
+/* Language Toggle */
+"language" = "언어";
+"switch_language" = "언어 전환";
