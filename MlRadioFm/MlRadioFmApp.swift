@@ -26,8 +26,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       
       // Create menu with radio interface and quit option
       let menu = NSMenu()
-      menu.addItem(NSMenuItem(title: "MlRadioFm", action: #selector(showHelp), keyEquivalent: ""))
-      menu.addItem(NSMenuItem.separator())
       menu.addItem(NSMenuItem(title: "Show Radio", action: #selector(showRadio), keyEquivalent: "o"))
       menu.addItem(NSMenuItem.separator())
       menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
@@ -48,34 +46,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
       self?.showRadio()
     }
-  }
-  
-  @objc func showHelp() {
-    let alert = NSAlert()
-    alert.messageText = "MlRadioFm"
-    alert.informativeText = """
-    🎵 Korean & US Radio Stations App 
-    (Apple Silicon / Intel)
-    
-    How to use:
-    • Click "Show Radio" to open channels
-    • Use volume slider to adjust sound
-    
-    Radio streams provided by:
-    • iHeart Radio (KISS FM, STAR, The New MiX)
-    • Korean Broadcasting System (KBS)
-    • Munhwa Broadcasting Corporation (MBC)
-    • Seoul Broadcasting System (SBS)
-    • Other Korean broadcasters
-    
-    All content is property of respective broadcasters.
-    
-    Version 1.0        
-    Copyright © 2025 Michaeldslim
-    All rights reserved
-    """
-    alert.addButton(withTitle: "OK")
-    alert.runModal()
   }
   
   @objc func showRadio() {

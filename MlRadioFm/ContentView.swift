@@ -369,6 +369,18 @@ struct ContentView: View {
               }
             }
           }
+          
+          // Copyright footer
+          VStack(spacing: 4) {
+            Divider()
+              .padding(.vertical, 8)
+            
+            Text("Copyright © 2025 Michaeldslim")
+              .font(.system(size: 9))
+              .foregroundColor(.secondary.opacity(0.6))
+              .padding(.bottom, 12)
+          }
+          .padding(.horizontal, 16)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
