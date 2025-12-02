@@ -79,7 +79,26 @@ class KoreanRadioAPI {
   
   // BBS 불교방송 API (HTTPS 공식 스트림)
   func getBBSStreamURL() async throws -> String {
-    return "https://bbslive.clouducs.com/bbsradio-live/livestream/playlist.m3u8"
+    let urls = [
+      "https://bbslive.clouducs.com/bbsradio-mlive/radio.stream/chunklist_w1242564288.m3u8",
+      "https://bbslive.clouducs.com/bbsradio-mlive/radio.stream/chunklist_w849550616.m3u8"
+    ]
+    
+    for urlString in urls {
+      guard let url = URL(string: urlString) else { continue }
+      do {
+        let (_, response) = try await URLSession.shared.data(from: url)
+        if let httpResponse = response as? HTTPURLResponse,
+           (200..<300).contains(httpResponse.statusCode) {
+          return urlString
+        }
+      } catch {
+        print("❌ BBS stream URL failed: \(urlString), error: \(error)")
+        continue
+      }
+    }
+    
+    throw RadioError.noStreamURL
   }
   
   // YTN 라디오 API (HTTPS 공식 스트림)
@@ -148,6 +167,7 @@ class RadioPlayer: ObservableObject {
     RadioStation(name: "KISS FM 106.1", url: "https://n35a-e2.revma.ihrhls.com/zc181", type: .international),
     RadioStation(name: "STAR 102.1", url: "https://n10a-e2.revma.ihrhls.com/zc2815", type: .international),
     RadioStation(name: "The New MiX 102.9", url: "https://n10a-e2.revma.ihrhls.com/zc2237", type: .international),
+    RadioStation(name: "Way-FM 89.7", url: "https://ais-sa8.cdnstream1.com/3144_64.aac", type: .international),
     
     // Podcasts
     RadioStation(name: "Syntax.fm", url: "https://feed.syntax.fm/rss", type: .podcast),
