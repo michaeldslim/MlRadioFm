@@ -8,7 +8,7 @@ class KoreanRadioAPI {
   
   // KBS API - 채널 코드: 21(1라디오), 22(2라디오), 23(3라디오), 24(클래식FM)
   func getKBSStreamURL(channelCode: String) async throws -> String {
-    let urlString = "https://cfpwwwapi.kbs.co.kr/api/v1/landing/live/channel_code/\(channelCode)"
+    let urlString = StreamConfig.KoreanAPI.kbsChannelURL(channelCode)
     guard let url = URL(string: urlString) else {
       throw RadioError.invalidURL
     }
@@ -27,7 +27,7 @@ class KoreanRadioAPI {
   
   // MBC API - 채널: sfm(표준FM), mfm(FM4U)
   func getMBCStreamURL(channel: String) async throws -> String {
-    let urlString = "https://sminiplay.imbc.com/aacplay.ashx?agent=webapp&channel=\(channel)"
+    let urlString = StreamConfig.KoreanAPI.mbcChannelURL(channel)
     guard let url = URL(string: urlString) else {
       throw RadioError.invalidURL
     }
@@ -45,7 +45,7 @@ class KoreanRadioAPI {
   // SBS API - 채널: lovefm, powerfm
   func getSBSStreamURL(channel: String) async throws -> String {
     // SBS API 기반 대체 스트림 (HTTPS)
-    let urlString = "https://apis.sbs.co.kr/play-api/1.0/livestream/\(channel)pc/\(channel)fm?protocol=hls&ssl=Y"
+    let urlString = StreamConfig.KoreanAPI.sbsChannelURL(channel)
     guard let url = URL(string: urlString) else {
       throw RadioError.invalidURL
     }
@@ -62,7 +62,7 @@ class KoreanRadioAPI {
   
   // MBC 올댓뮤직 API
   func getMBCAllThatMusicURL() async throws -> String {
-    let urlString = "https://sminiplay.imbc.com/aacplay.ashx?agent=webapp&channel=chm"
+    let urlString = StreamConfig.KoreanAPI.mbcChannelURL(StreamConfig.KoreanAPI.mbcAllThatMusicChannel)
     guard let url = URL(string: urlString) else {
       throw RadioError.invalidURL
     }
@@ -79,10 +79,7 @@ class KoreanRadioAPI {
   
   // BBS 불교방송 API (HTTPS 공식 스트림)
   func getBBSStreamURL() async throws -> String {
-    let urls = [
-      "https://bbslive.clouducs.com/bbsradio-mlive/radio.stream/chunklist_w1242564288.m3u8",
-      "https://bbslive.clouducs.com/bbsradio-mlive/radio.stream/chunklist_w849550616.m3u8"
-    ]
+    let urls = StreamConfig.KoreanAPI.bbsStreamCandidates
     
     for urlString in urls {
       guard let url = URL(string: urlString) else { continue }
@@ -103,12 +100,12 @@ class KoreanRadioAPI {
   
   // YTN 라디오 API (HTTPS 공식 스트림)
   func getYTNStreamURL() async throws -> String {
-    return "https://radiolive.ytn.co.kr/radio/_definst_/20211118_fmlive/playlist.m3u8"
+    return StreamConfig.KoreanAPI.ytnStreamURL
   }
   
   // Arirang Radio API (HTTPS 공식 스트림)
   func getArirangRadioStreamURL() async throws -> String {
-    return "https://amdlive-ch01-ctnd-com.akamaized.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8"
+    return StreamConfig.KoreanAPI.arirangStreamURL
   }
 }
 
@@ -164,13 +161,13 @@ class RadioPlayer: ObservableObject {
     RadioStation(name: "BBS 불교방송", url: "bbs://main", type: .korean, subtitle: "BBS Buddhist Broadcasting"),
     RadioStation(name: "YTN 라디오", url: "ytn://main", type: .korean, subtitle: "YTN Radio"),
     RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean, subtitle: "Arirang Radio"),
-    RadioStation(name: "KISS FM 106.1", url: "https://stream.revma.ihrhls.com/zc181/hls.m3u8", type: .international),
-    RadioStation(name: "STAR 102.1", url: "https://stream.revma.ihrhls.com/zc2815/hls.m3u8", type: .international),
-    RadioStation(name: "The New MiX 102.9", url: "https://stream.revma.ihrhls.com/zc2237/hls.m3u8", type: .international),
-    RadioStation(name: "Way-FM 89.7", url: "https://ais-sa8.cdnstream1.com/3144_64.aac", type: .international),
+    RadioStation(name: "KISS FM 106.1", url: StreamConfig.International.kissFM, type: .international),
+    RadioStation(name: "STAR 102.1", url: StreamConfig.International.star1021, type: .international),
+    RadioStation(name: "The New MiX 102.9", url: StreamConfig.International.mix1029, type: .international),
+    RadioStation(name: "Way-FM 89.7", url: StreamConfig.International.wayFM, type: .international),
     
     // Podcasts
-    RadioStation(name: "Syntax.fm", url: "https://feed.syntax.fm/rss", type: .podcast),
+    RadioStation(name: "Syntax.fm", url: StreamConfig.Podcast.syntaxFMRSS, type: .podcast),
   ]
   
   init() {
