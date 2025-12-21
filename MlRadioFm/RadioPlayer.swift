@@ -164,9 +164,9 @@ class RadioPlayer: ObservableObject {
     RadioStation(name: "BBS 불교방송", url: "bbs://main", type: .korean, subtitle: "BBS Buddhist Broadcasting"),
     RadioStation(name: "YTN 라디오", url: "ytn://main", type: .korean, subtitle: "YTN Radio"),
     RadioStation(name: "Arirang Radio", url: "arirang://main", type: .korean, subtitle: "Arirang Radio"),
-    RadioStation(name: "KISS FM 106.1", url: "https://n35a-e2.revma.ihrhls.com/zc181", type: .international),
-    RadioStation(name: "STAR 102.1", url: "https://n10a-e2.revma.ihrhls.com/zc2815", type: .international),
-    RadioStation(name: "The New MiX 102.9", url: "https://n10a-e2.revma.ihrhls.com/zc2237", type: .international),
+    RadioStation(name: "KISS FM 106.1", url: "https://stream.revma.ihrhls.com/zc181/hls.m3u8", type: .international),
+    RadioStation(name: "STAR 102.1", url: "https://stream.revma.ihrhls.com/zc2815/hls.m3u8", type: .international),
+    RadioStation(name: "The New MiX 102.9", url: "https://stream.revma.ihrhls.com/zc2237/hls.m3u8", type: .international),
     RadioStation(name: "Way-FM 89.7", url: "https://ais-sa8.cdnstream1.com/3144_64.aac", type: .international),
     
     // Podcasts
