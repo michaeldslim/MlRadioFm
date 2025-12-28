@@ -33,8 +33,13 @@ jobs:
         run: |
           ls -R build/Build/Products || echo "No build products found"
 
-      - name: Upload MlRadioFm.app artifact
+      - name: Package MlRadioFm.app into zip
+        run: |
+          cd build/Build/Products/Release
+          zip -r MlRadioFm.app.zip MlRadioFm.app
+
+      - name: Upload MlRadioFm.app.zip artifact
         uses: actions/upload-artifact@v4
         with:
           name: MlRadioFm-macOS-Release
-          path: build/Build/Products/Release/MlRadioFm.app
+          path: build/Build/Products/Release/MlRadioFm.app.zip
