@@ -387,7 +387,7 @@ struct ContentView: View {
       }
       Spacer()
     }
-    .frame(width: 280, height: 580)
+    .frame(width: 300, height: 580)
     .background(Color(.windowBackgroundColor))
   }
   
