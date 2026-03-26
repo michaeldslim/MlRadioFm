@@ -45,6 +45,7 @@ enum StationCategory: String, CaseIterable {
 }
 
 struct ContentView: View {
+  @Environment(\.colorScheme) private var colorScheme
   @StateObject private var radioPlayer = RadioPlayer()
   @StateObject private var localizationManager = LocalizationManager()
   @State private var hasSelectedStation = false
@@ -52,6 +53,50 @@ struct ContentView: View {
   @State private var showingSearch = false
   @State private var selectedTab: StationCategory = .all
   @State private var currentScrollIndex = 0
+
+  private var controlPanelGradientColors: [Color] {
+    if colorScheme == .dark {
+      return [
+        Color(red: 0.12, green: 0.18, blue: 0.32).opacity(0.88),
+        Color(red: 0.08, green: 0.13, blue: 0.25).opacity(0.92)
+      ]
+    }
+
+    return [
+      Color(red: 0.86, green: 0.90, blue: 0.98).opacity(0.95),
+      Color(red: 0.78, green: 0.84, blue: 0.96).opacity(0.98)
+    ]
+  }
+
+  private var controlPanelBorderColor: Color {
+    if colorScheme == .dark {
+      return Color(red: 0.33, green: 0.47, blue: 0.75).opacity(0.35)
+    }
+
+    return Color(red: 0.28, green: 0.40, blue: 0.67).opacity(0.22)
+  }
+
+  private var stationCardGradientColors: [Color] {
+    if colorScheme == .dark {
+      return [
+        Color(red: 0.10, green: 0.15, blue: 0.27).opacity(0.85),
+        Color(red: 0.06, green: 0.10, blue: 0.20).opacity(0.90)
+      ]
+    }
+
+    return [
+      Color(red: 0.90, green: 0.93, blue: 0.99).opacity(0.95),
+      Color(red: 0.82, green: 0.88, blue: 0.98).opacity(0.98)
+    ]
+  }
+
+  private var stationCardBorderColor: Color {
+    if colorScheme == .dark {
+      return Color(red: 0.33, green: 0.47, blue: 0.75).opacity(0.35)
+    }
+
+    return Color(red: 0.28, green: 0.40, blue: 0.67).opacity(0.24)
+  }
   
   var body: some View {
     VStack(spacing: 0) {
@@ -272,8 +317,20 @@ struct ContentView: View {
       }
       .padding(.horizontal, 20)
       .padding(.vertical, 16)
-      .background(Color(.controlBackgroundColor).opacity(0.5))
-      .cornerRadius(16)
+      .background(
+        RoundedRectangle(cornerRadius: 16)
+          .fill(
+            LinearGradient(
+              colors: controlPanelGradientColors,
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            )
+          )
+          .overlay(
+            RoundedRectangle(cornerRadius: 16)
+              .stroke(controlPanelBorderColor, lineWidth: 1)
+          )
+      )
       .padding(.horizontal, 16)
       
       // Navigation arrows
@@ -719,7 +776,17 @@ struct ContentView: View {
               )
           } else {
             RoundedRectangle(cornerRadius: 12)
-              .fill(Color(.controlBackgroundColor).opacity(0.5))
+              .fill(
+                LinearGradient(
+                  colors: stationCardGradientColors,
+                  startPoint: .topLeading,
+                  endPoint: .bottomTrailing
+                )
+              )
+              .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                  .stroke(stationCardBorderColor, lineWidth: 1)
+              )
           }
         }
       )
