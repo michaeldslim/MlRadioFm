@@ -62,11 +62,11 @@ A macOS menu bar radio streaming application built with SwiftUI, featuring Korea
 - **Xcode**: 15.0 or later (for development)
 - **Architecture**: Apple Silicon & Intel compatible
 
-## Build & Run
+## Run
 
-1. Open `MlRadioFm.xcodeproj` in Xcode
-2. Build the project (⌘+B)
-3. Run the application (⌘+R)
+1. Download MlRadioFm-x.x.x.dmg from the latest release: https://github.com/michaeldslim/MlRadioFm/releases/latest
+2. Open the .dmg file and drag the MlRadioFm app icon into the Applications folder.
+3. On first launch macOS may block the app. If that happens, open System Settings → Privacy & Security and click "Open Anyway" for MlRadioFm.
 
 ## Usage
 
@@ -76,25 +76,6 @@ A macOS menu bar radio streaming application built with SwiftUI, featuring Korea
 4. **Control Playback**: Use play/pause and stop buttons
 5. **Adjust Volume**: Use the volume slider
 6. **Help**: Click "MlRadioFm" in the menu for app information
-
-## Technology Stack
-
-- **SwiftUI**: Modern declarative UI framework
-- **AVFoundation**: Audio streaming and playback
-- **Combine**: Reactive programming and state management
-- **NSStatusItem**: macOS menu bar integration
-- **NSPopover**: Professional popover interface
-- **Async/Await**: Modern asynchronous programming
-
-## Future Enhancements
-
-- [ ] Custom station addition
-- [ ] Favorites functionality
-- [ ] Metadata display (song titles, artists)
-- [ ] Keyboard shortcuts
-- [ ] Additional international stations
-- [ ] Recording functionality
-- [ ] Sleep timer
 
 ## License
 
