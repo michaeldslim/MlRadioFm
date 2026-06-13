@@ -65,8 +65,8 @@ A macOS menu bar radio streaming application built with SwiftUI, featuring Korea
 ## Run
 
 1. Download MlRadioFm-x.x.x.dmg from the latest release: https://github.com/michaeldslim/MlRadioFm/releases/latest
-2. Open the .dmg file and drag the MlRadioFm app icon into the Applications folder.
-3. On first launch macOS may block the app. If that happens, open System Settings → Privacy & Security and click "Open Anyway" for MlRadioFm.
+2. Open the .dmg file and drag the MlRadioFm app icon into the Applications folder
+3. On first launch macOS may block the app. If that happens, open System Settings → Privacy & Security and click "Open Anyway" for MlRadioFm
 
 ## Usage
 
